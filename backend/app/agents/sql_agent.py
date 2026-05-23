@@ -1,15 +1,14 @@
 import os
 
-from sqlalchemy import text
+from sqlalchemy import create_engine,text
 
 from app.services.db_service import engine
 from app.services.llm_service import llm
 
 from dotenv import load_dotenv
 
-from sqlalchemy import create_engine
-from sqlalchemy import text
-
+from sqlalchemy.exc import SQLAlchemyError
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 load_dotenv()
 
@@ -33,10 +32,56 @@ engine = create_engine(
     pool_pre_ping=True
 )
 
+def get_database_schema():
 
-def generate_sql(question):
+    schema = ""
+
+    with engine.connect() as conn:
+
+        tables = conn.execute(text("""
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_schema = DATABASE()
+        """))
+
+        for table in tables:
+
+            table_name = table[0]
+
+            schema += f"\nTable: {table_name}\n"
+
+            columns = conn.execute(text(f"""
+                SELECT column_name, data_type
+                FROM information_schema.columns
+                WHERE table_schema = DATABASE()
+                AND table_name = '{table_name}'
+            """))
+
+            for column in columns:
+                schema += f"- {column[0]} ({column[1]})\n"
+
+    return schema
+
+
+def generate_sql(question, schema):
 
     prompt = f"""
+
+    You are an expert MySQL SQL generator.
+
+    IMPORTANT RULES:
+    1. ONLY use tables/columns from schema
+    2. NEVER hallucinate columns
+    3. Return ONLY SQL query
+    4. Use MySQL syntax
+    5. Do not use markdown
+
+    DATABASE SCHEMA:
+    {schema}
+
+    USER QUESTION:
+    {question}
+
     Convert user question into SQL query.
 
     Only return SQL query.
@@ -79,18 +124,37 @@ def execute_sql_query(query):
 
 
 def ask_database(question):
+    try:
 
-    sql_query = generate_sql(question)
-    
-    print("sql_query 1:", sql_query)
+        schema = get_database_schema()
 
-    sql_query = sql_query.replace("```sql", "")
-    sql_query = sql_query.replace("```", "")
+        print("\n=========== DATABASE SCHEMA ===========")
+        print(schema)
+        sql_query = generate_sql(question, schema)
+        
+        print("sql_query 1:", sql_query)
 
-    print("sql_query 2:", sql_query)
-    result = execute_sql_query(sql_query)
+        sql_query = sql_query.replace("```sql", "")
+        sql_query = sql_query.replace("```", "")
 
-    return {
-        "sql": sql_query,
-        "result": result
-    }
+        print("sql_query 2:", sql_query)
+        result = execute_sql_query(sql_query)
+
+        return {
+            "success": True,
+            "sql": sql_query,
+            "result": result
+        }
+    except SQLAlchemyError as e:
+
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+    except Exception as e:
+
+        return {
+            "success": False,
+            "error": str(e)
+        }

@@ -26,3 +26,7 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# Uploaded repositories
+backend/app/repositories/
+backend/app/uploads/
