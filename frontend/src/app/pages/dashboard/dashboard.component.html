@@ -1,0 +1,45 @@
+<div style="padding:20px">
+
+  <h2>Codebase Chat Tool</h2>
+
+  <input
+    [(ngModel)]="repoUrl"
+    placeholder="Git Repository URL"
+    style="width:400px"
+  />
+
+  <button (click)="cloneRepository()">
+    Clone Repository
+  </button>
+
+  <br /><br />
+
+  <input
+    [(ngModel)]="question"
+    placeholder="Ask anything about repository"
+    style="width:400px"
+  />
+
+  <button (click)="askCodebase()">
+    Ask
+  </button>
+
+  <p>{{ answer }}</p>
+
+  <hr />
+
+  <h2>Natural Language to SQL Tool</h2>
+
+  <input
+    [(ngModel)]="dbQuestion"
+    placeholder="Ask database question"
+    style="width:400px"
+  />
+
+  <button (click)="askDatabase()">
+    Execute
+  </button>
+
+  <pre>{{ dbResponse | json }}</pre>
+
+</div>
