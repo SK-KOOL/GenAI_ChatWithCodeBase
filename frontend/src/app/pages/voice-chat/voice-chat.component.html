@@ -1,0 +1,138 @@
+<div class="voice-container">
+
+  <div class="voice-card">
+
+    <!-- Header -->
+    <div class="header">
+
+      <h1>
+        AI Voice Search
+      </h1>
+
+      <p>
+        Speak naturally with your AI assistant
+      </p>
+
+    </div>
+
+    <!-- Recorder -->
+    <div class="recorder-wrapper">
+
+      <!-- Sound Wave -->
+      <div
+        class="wave-container"
+        [class.recording]="isRecording()"
+      >
+
+        @for (
+          bar of waveformBars;
+          track $index
+        ) {
+
+          <div
+            class="wave-bar"
+            [style.animationDelay]="
+              ($index * 0.04) + 's'
+            "
+          ></div>
+
+        }
+
+      </div>
+
+      <!-- Record Button -->
+      <button
+        class="record-button"
+        [class.active]="isRecording()"
+        (click)="toggleRecording()"
+      >
+
+        @if (!isRecording()) {
+
+          <span>
+            🎤
+          </span>
+
+        } @else {
+
+          <span>
+            ⏹
+          </span>
+
+        }
+
+      </button>
+
+      <!-- Status -->
+      <div class="recording-status">
+
+        @if (!isRecording()) {
+
+          <span>
+            Tap to Start Recording
+          </span>
+
+        } @else {
+
+          <span>
+            Recording...
+          </span>
+
+        }
+
+      </div>
+
+    </div>
+
+    <!-- Loader -->
+    @if (isLoading()) {
+
+      <div class="loader-section">
+
+        <div class="loader"></div>
+
+        <p>
+          Processing Voice...
+        </p>
+
+      </div>
+
+    }
+
+    <!-- Transcript -->
+    @if (transcript()) {
+
+      <div class="message-card">
+
+        <h3>
+          Your Speech
+        </h3>
+
+        <p>
+          {{ transcript() }}
+        </p>
+
+      </div>
+
+    }
+
+    <!-- AI Response -->
+    @if (aiResponse()) {
+
+      <div class="message-card ai-response">
+
+        <h3>
+          AI Response
+        </h3>
+
+        <p>
+          {{ aiResponse() }}
+        </p>
+
+      </div>
+
+    }
+
+  </div>
+
+</div>

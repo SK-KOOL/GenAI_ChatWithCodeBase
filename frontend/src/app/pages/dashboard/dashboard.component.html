@@ -24,6 +24,17 @@
     Ask
   </button>
 
+  @if(!isRecording){
+    <button (click)="startRecording()">
+      Start Recording Question
+    </button>
+  }
+  @if(isRecording){
+    <button (click)="stopRecording('codebase')">
+      Search Codebase
+    </button>
+  }
+
   <p>{{ answer }}</p>
 
   <hr />
@@ -40,6 +51,20 @@
     Execute
   </button>
 
+  @if(!isRecording){
+    <button (click)="startRecording()">
+      Start Recording Question
+    </button>
+  }
+  @if(isRecording){
+    <button (click)="stopRecording('database')">
+      Search Database
+    </button>
+  }
   <pre>{{ dbResponse | json }}</pre>
+
+  <hr />
+
+  <app-voice-chat></app-voice-chat>
 
 </div>
